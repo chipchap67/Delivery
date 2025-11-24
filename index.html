@@ -685,19 +685,20 @@
                 const isActive = completed < total;
                 
                 return `
-                    <div class="driver-card ${appData.selectedDriver === driver.id ? 'selected' : ''}" onclick="selectDriver(${driver.id})">
-                        <div class="driver-header">
-                            <div class="driver-name">${driver.name}</div>
-                            <span class="status-badge ${isActive ? 'status-active' : 'status-completed'}">
-                                ${isActive ? 'Active' : 'Completed'}
-                            </span>
-                        </div>
-                        <div class="driver-stats">
-                            <span>${completed}/${total} stops</span>
-                            <span>${Math.round((completed/total)*100)}% complete</span>
-                        </div>
-                    </div>
-                `;
+<div class="driver-card ${appData.selectedDriver === driver.id ? 'selected' : ''}">
+    <div class="driver-header">
+        <div class="driver-name" onclick="selectDriver(${driver.id})">${driver.name}</div>
+        <button class="btn btn-danger btn-sm" onclick="deleteDriver(${driver.id}); event.stopPropagation();">Delete</button>
+        <span class="status-badge ${isActive ? 'status-active' : 'status-completed'}">
+            ${isActive ? 'Active' : 'Completed'}
+        </span>
+    </div>
+    <div class="driver-stats">
+        <span>${completed}/${total} stops</span>
+        <span>${Math.round((completed / total) * 100)}% completed</span>
+    </div>
+</div>`;
+
             }).join('');
         }
 
@@ -809,6 +810,23 @@
                 renderRouteManagement();
             }
         }
+        function deleteDriver(driverId) {
+    if (!confirm('Are you sure you want to delete this driver? This action cannot be undone.')) return;
+
+    // Remove the driver from the array
+    appData.drivers = appData.drivers.filter(d => d.id !== driverId);
+
+    // If deleted driver was selected, clear selection
+    if (appData.selectedDriver === driverId) {
+        appData.selectedDriver = null;
+    }
+
+    saveData();   // Save changes to localStorage or your persistent storage
+    updateStats(); // Update any stats, counts
+    renderDriverList(); // Refresh the driver list display
+    renderRouteManagement(); // Refresh route management area
+}
+
 
         function resetRoute() {
             const driver = appData.drivers.find(d => d.id === appData.selectedDriver);
